@@ -1,14 +1,9 @@
-"""Print the project version, independently of the current directory."""
+"""Print the project version."""
 
 import tomllib
 from pathlib import Path
 
+root = Path(__file__).resolve().parents[1]
+config = tomllib.loads((root / "pyproject.toml").read_text())
 
-def main():
-    root = Path(__file__).resolve().parents[1]
-    config = tomllib.loads((root / "pyproject.toml").read_text())
-    print(config["project"]["version"])
-
-
-if __name__ == "__main__":
-    main()
+print(config["project"]["version"])
