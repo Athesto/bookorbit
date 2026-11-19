@@ -1,0 +1,16 @@
+.venv/
+.cache/
+build/
+dist/
+*.spec
+__pycache__/
+.env
+runtime/
+
+.ruff_cache/
+
+# Original Tkinter source retained before the UI migration
+tkinter-original-*/
+
+release/
+.DS_Store

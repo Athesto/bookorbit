@@ -1,0 +1,27 @@
+[project]
+name = "bookorbit-control"
+version = "0.1.0"
+description = "Panel local de BookOrbit y sus servicios Docker"
+requires-python = ">=3.15,<3.16"
+dependencies = ["pywebview>=6,<7"]
+
+[dependency-groups]
+build = ["pyinstaller>=6.17,<7"]
+dev = [
+    "ruff>=0.17.5",
+]
+
+[tool.ruff]
+target-version = "py315"
+line-length = 88
+extend-exclude = [".cache", ".venv", "build", "dist", "*.spec", "tkinter-original-*"]
+force-exclude = true
+
+[tool.ruff.lint]
+select = ["E4", "E7", "E9", "F", "I", "UP", "B", "SIM"]
+
+[tool.pyright]
+pythonVersion = "3.15"
+venvPath = "."
+venv = ".venv"
+exclude = [".cache", ".venv", "build", "dist", "tkinter-original-*"]

@@ -1,0 +1,3 @@
+FROM travisvn/openai-edge-tts:latest
+
+RUN python -m pip install --no-cache-dir --upgrade "edge-tts==7.3.1"

@@ -1,0 +1,3 @@
+Icon: menu_book, Google Material Symbols. Copyright Google. Apache License 2.0.
+Source: https://github.com/google/material-design-icons
+Adaptation: light book on a blue/teal rounded background.
