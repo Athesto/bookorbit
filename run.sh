@@ -16,6 +16,7 @@ Usage: ./$PROGRAM COMMAND [service...]
   gui             Abrir panel (predeterminado: Tkinter; --ui webview para HTML)
   build           Preparar el entorno con uv y crear dist/BookOrbit Control.app
   install         Copiar la app construida a ~/Applications
+  publish         Crear y subir el tag de project.version desde main sincronizado
   start [service] Iniciar servicios con Docker Compose
   stop [service]  Detener sin borrar contenedores ni datos
   restart [...]   Reiniciar servicios existentes
@@ -61,12 +62,50 @@ install() {
     ditto "dist/BookOrbit Control.app" "$HOME/Applications/BookOrbit Control.app"
 }
 
+
+publish() {
+    local version tag
+
+    [[ -z "$(git status --porcelain)" ]] || {
+        printf 'Primero guarda los cambios en un commit.\n' >&2
+        return 1
+    }
+    [[ "$(git branch --show-current)" == main ]] || {
+        printf 'Publica desde la rama main.\n' >&2
+        return 1
+    }
+
+    version=$(uv run --locked --python "$PYTHON" python scripts/version.py) || return
+    [[ "$version" =~ ^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$ ]] || {
+        printf 'Versión inválida: %s; usa X.Y.Z.\n' "$version" >&2
+        return 1
+    }
+    tag="v$version"
+
+    git fetch origin --tags || return
+    [[ "$(git rev-parse HEAD)" == "$(git rev-parse refs/remotes/origin/main)" ]] || {
+        printf 'main debe coincidir con origin/main. Sube o sincroniza tus commits.\n' >&2
+        return 1
+    }
+    if git show-ref --verify --quiet "refs/tags/$tag"; then
+        printf 'El tag %s ya existe. Incrementa project.version.\n' "$tag" >&2
+        return 1
+    fi
+
+    git tag -a "$tag" -m "BookOrbit Control $version" || return
+    git push origin "refs/tags/$tag" || {
+        printf 'No se pudo subir %s; el tag local se conservó.\n' "$tag" >&2
+        return 1
+    }
+    printf 'Tag %s publicado. GitHub Actions generará la release.\n' "$tag"
+}
+
 # -----------------------------------------------------------------------------
 # ENTRYPOINT
 # -----------------------------------------------------------------------------
 command="${1:---help}"
 case "$command" in
     --help|help) printf '%s\n' "$HELP" ;;
-    start|stop|restart|status|logs|browse|gui|build|install|lint|format) "$command" "${@:2}" ;;
+    start|stop|restart|status|logs|browse|gui|build|install|lint|format|publish) "$command" "${@:2}" ;;
     *) printf 'Unknown command: %s\n' "$command" >&2; exit 1 ;;
 esac

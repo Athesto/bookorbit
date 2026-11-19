@@ -95,8 +95,7 @@ uv run python -m unittest discover -s tests -v
 git add pyproject.toml uv.lock
 git commit -m "Release 0.1.1"
 git push origin main
-git tag -a v0.1.1 -m "BookOrbit Control 0.1.1"
-git push origin v0.1.1
+./run.sh publish
 ```
 
 El build local usa el mismo `scripts/build.py` que CI y deja los archivos de
@@ -105,3 +104,12 @@ publicación en `release/`. El ZIP de macOS conserva el bundle `.app` mediante
 Las releases no contienen `.env`, entornos virtuales ni datos personales.
 Los binarios no llevan firma de distribución/notarización. Las pruebas del CI
 no sustituyen las pruebas de interfaz y Docker en el equipo de destino.
+
+`./run.sh publish` lee la versión con `scripts/version.py`, exige una rama `main`
+limpia e idéntica a `origin/main`, comprueba que el tag no exista y crea/sube el
+tag anotado. No cambia la versión ni crea commits. Espera a que el CI de `main`
+pase antes de ejecutarlo. Puedes consultar la versión con:
+
+```bash
+uv run python scripts/version.py
+```
